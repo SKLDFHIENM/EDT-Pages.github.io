@@ -10346,7 +10346,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
         let uuidSnippetDisplayProgressValue = 0;
         let uuidSnippetDisplayProgressTarget = 0;
         let uuidSnippetRawCode = '';
-        let uuidSnippetLastSocketsVariant = '';
+        const uuidSnippetLastLiteralVariants = new Map();
 
         const UUID_SNIPPET_REVEAL_CHARSET = '01<>/\\\\{}[]=+-_*#@$%&ABCDEFGHJKLMNPQRSTUVWXYZ';
         const UUID_SNIPPET_STATUS_TEXT = {
@@ -10846,8 +10846,46 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             return `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`;
         }
 
-        function buildRandomCloudflareSocketsLiteralVariant() {
-            const literal = 'cloudflare:sockets';
+        function escapeSnippetLiteralForRegExp(literal) {
+            return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function randomizeSnippetLiteralCase(literal) {
+            const letterIndexes = [];
+            for (let i = 0; i < literal.length; i++) {
+                if (/[a-z]/i.test(literal[i])) {
+                    letterIndexes.push(i);
+                }
+            }
+
+            if (!letterIndexes.length) {
+                return { value: literal, changedLetters: 0 };
+            }
+
+            const forcedUpperIndex = letterIndexes[Math.floor(Math.random() * letterIndexes.length)];
+            let changedLetters = 0;
+            let value = '';
+
+            for (let i = 0; i < literal.length; i++) {
+                const currentChar = literal[i];
+                if (!/[a-z]/i.test(currentChar)) {
+                    value += currentChar;
+                    continue;
+                }
+
+                const nextChar = (i === forcedUpperIndex || Math.random() < 0.5)
+                    ? currentChar.toUpperCase()
+                    : currentChar.toLowerCase();
+                if (nextChar !== currentChar) {
+                    changedLetters += 1;
+                }
+                value += nextChar;
+            }
+
+            return { value, changedLetters };
+        }
+
+        function randomizeSnippetLiteralUnicodeEscapes(literal) {
             const forcedIndex = Math.floor(Math.random() * literal.length);
             let escapedChars = 0;
             let value = '';
@@ -10866,42 +10904,55 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             return { value, escapedChars };
         }
 
-        function randomizeCloudflareSocketsSpecifiers(sourceCode) {
-            const pattern = /(['"])cloudflare:sockets\1/g;
+        function randomizeSnippetLiteralOccurrences(sourceCode, literal, options = {}) {
+            const pattern = new RegExp(escapeSnippetLiteralForRegExp(literal), 'g');
             const matches = sourceCode.match(pattern);
             if (!matches || !matches.length) {
                 return {
                     code: sourceCode,
                     occurrences: 0,
-                    escapedChars: 0
+                    escapedChars: 0,
+                    changedLetters: 0
                 };
             }
 
+            const lastSignature = uuidSnippetLastLiteralVariants.get(literal) || '';
             let variantSignature = '';
             let escapedChars = 0;
+            let changedLetters = 0;
             let randomizedCode = sourceCode;
 
             for (let attempt = 0; attempt < 8; attempt++) {
                 const signatureParts = [];
                 escapedChars = 0;
-                randomizedCode = sourceCode.replace(pattern, (fullMatch, quote) => {
-                    const variant = buildRandomCloudflareSocketsLiteralVariant();
-                    signatureParts.push(variant.value);
-                    escapedChars += variant.escapedChars;
-                    return `${quote}${variant.value}${quote}`;
+                changedLetters = 0;
+                randomizedCode = sourceCode.replace(pattern, () => {
+                    let variantValue = literal;
+                    if (options.randomizeCase) {
+                        const caseVariant = randomizeSnippetLiteralCase(variantValue);
+                        variantValue = caseVariant.value;
+                        changedLetters += caseVariant.changedLetters;
+                    }
+
+                    const unicodeVariant = randomizeSnippetLiteralUnicodeEscapes(variantValue);
+                    variantValue = unicodeVariant.value;
+                    escapedChars += unicodeVariant.escapedChars;
+                    signatureParts.push(variantValue);
+                    return variantValue;
                 });
 
                 variantSignature = signatureParts.join('||');
-                if (variantSignature !== uuidSnippetLastSocketsVariant) {
+                if (variantSignature !== lastSignature) {
                     break;
                 }
             }
 
-            uuidSnippetLastSocketsVariant = variantSignature;
+            uuidSnippetLastLiteralVariants.set(literal, variantSignature);
             return {
                 code: randomizedCode,
                 occurrences: matches.length,
-                escapedChars
+                escapedChars,
+                changedLetters
             };
         }
 
@@ -10975,17 +11026,30 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 const dictionaryMap = buildSnippetDictionaryMap(dictionaryData);
                 updateUUIDSnippetProcessingStage(86, 'mesh', '字符晶格正在重映射', `字典矩阵已生成 ${dictionaryMap.size} 组替换通道`);
                 const dictionaryAppliedScript = applySnippetDictionary(replacedScript, dictionaryMap);
-                const socketsVariantResult = randomizeCloudflareSocketsSpecifiers(dictionaryAppliedScript);
-                const finalScript = socketsVariantResult.code;
+                const socketsVariantResult = randomizeSnippetLiteralOccurrences(dictionaryAppliedScript, 'cloudflare:sockets');
+                const proxyipVariantResult = randomizeSnippetLiteralOccurrences(
+                    socketsVariantResult.code,
+                    'proxyip.cmliussss.net',
+                    { randomizeCase: true }
+                );
+                const finalScript = proxyipVariantResult.code;
+                const variantSummaries = [];
+
                 if (socketsVariantResult.occurrences > 0) {
-                    updateUUIDSnippetProcessingStage(
-                        94,
-                        'mesh',
-                        'cloudflare:sockets 已完成随机扰动',
-                        `共处理 ${socketsVariantResult.occurrences} 处标识，写入 ${socketsVariantResult.escapedChars} 个 Unicode 转义`
+                    variantSummaries.push(
+                        `cloudflare:sockets ${socketsVariantResult.occurrences} 处 / ${socketsVariantResult.escapedChars} 个 Unicode 转义`
                     );
+                }
+                if (proxyipVariantResult.occurrences > 0) {
+                    variantSummaries.push(
+                        `proxyip.cmliussss.net ${proxyipVariantResult.occurrences} 处 / ${proxyipVariantResult.changedLetters} 个大小写扰动 / ${proxyipVariantResult.escapedChars} 个 Unicode 转义`
+                    );
+                }
+
+                if (variantSummaries.length > 0) {
+                    updateUUIDSnippetProcessingStage(94, 'mesh', '目标标识已完成随机扰动', variantSummaries.join(' ; '));
                 } else {
-                    updateUUIDSnippetProcessingStage(94, 'mesh', '未发现 cloudflare:sockets 标识', '跳过 Unicode 扰动步骤，直接进入最终揭晓');
+                    updateUUIDSnippetProcessingStage(94, 'mesh', '未发现目标标识', '跳过字符串扰动步骤，直接进入最终揭晓');
                 }
 
                 finishUUIDSnippetPresentation(finalScript, animationToken);
