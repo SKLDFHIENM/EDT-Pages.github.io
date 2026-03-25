@@ -10345,6 +10345,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
         let uuidSnippetDisplayToken = 0;
         let uuidSnippetDisplayProgressValue = 0;
         let uuidSnippetDisplayProgressTarget = 0;
+        let uuidSnippetRawCode = '';
 
         const UUID_SNIPPET_REVEAL_CHARSET = '01<>/\\\\{}[]=+-_*#@$%&ABCDEFGHJKLMNPQRSTUVWXYZ';
         const UUID_SNIPPET_STATUS_TEXT = {
@@ -10561,8 +10562,12 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             return lines.join('\n');
         }
 
+        function normalizeUUIDSnippetCodeForDisplay(sourceCode) {
+            return String(sourceCode || '').replace(/\t/g, '    ');
+        }
+
         function extractUUIDSnippetPreviewSource(sourceCode) {
-            const lines = String(sourceCode || '')
+            const lines = normalizeUUIDSnippetCodeForDisplay(sourceCode)
                 .split(/\r?\n/)
                 .slice(0, 22)
                 .map((line) => line.slice(0, 108));
@@ -10614,6 +10619,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
         function startUUIDSnippetPresentation(uuidValue) {
             const { textarea, preview } = getUUIDSnippetDisplayElements();
             clearUUIDSnippetDisplayTimers();
+            uuidSnippetRawCode = '';
             uuidSnippetDisplayToken += 1;
             uuidSnippetDisplayProgressTarget = 18;
             setUUIDSnippetProgress(3);
@@ -10664,8 +10670,10 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             }
 
             const { textarea, preview, flash } = getUUIDSnippetDisplayElements();
+            uuidSnippetRawCode = String(finalScript || '');
+            const displayScript = normalizeUUIDSnippetCodeForDisplay(uuidSnippetRawCode);
             if (textarea) {
-                textarea.value = finalScript;
+                textarea.value = displayScript;
                 textarea.scrollTop = 0;
             }
 
@@ -10681,7 +10689,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             setUUIDSnippetStageState('revealing');
             setUUIDSnippetDisplayStatus('源码晶格重组完成', '正在解除视觉掩码并写入真实 Snippet.js', 'reveal');
 
-            const previewSource = extractUUIDSnippetPreviewSource(finalScript);
+            const previewSource = extractUUIDSnippetPreviewSource(displayScript);
             const revealStart = performance.now();
             const revealDuration = 1650;
 
@@ -10732,6 +10740,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
 
             const { textarea, preview } = getUUIDSnippetDisplayElements();
             clearUUIDSnippetDisplayTimers();
+            uuidSnippetRawCode = '';
             setUUIDSnippetStageState('processing');
             setUUIDSnippetDisplayStatus('源码生成失败', '远端内容未能完成解码，正在释放错误信息', 'fail');
             setUUIDSnippetProgress(100);
@@ -10792,7 +10801,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
 
         async function copyUUIDSnippetCode() {
             const textarea = document.getElementById('uuidSnippetTextarea');
-            const code = textarea ? textarea.value : '';
+            const code = uuidSnippetRawCode || (textarea ? textarea.value : '');
             if (!code) {
                 showToast('暂无可复制代码', 'error');
                 return;
@@ -10875,6 +10884,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
 
             const uuidValue = (nodeUUIDInput.value || '').trim();
             if (!uuidValue) {
+                uuidSnippetRawCode = '';
                 textarea.value = '';
                 setUUIDSnippetCopyButtonEnabled(false);
                 clearUUIDSnippetDisplayTimers();
