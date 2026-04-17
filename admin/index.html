@@ -10469,7 +10469,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
 
             pendingChangelogLoadPromise = (async () => {
                 try {
-                    const changelogText = await fetchWithAutoMirror(CHANGELOG_RAW_URL, '更新日志');
+                    const changelogText = await fetchWithAutoMirror(CHANGELOG_RAW_URL + '?_t=' + Date.now(), '更新日志');
                     cachedChangelogRawText = changelogText;
                     cachedChangelogLoadedAt = Date.now();
 
