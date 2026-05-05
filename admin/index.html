@@ -8714,14 +8714,14 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
 
                         <strong>💡 解决方案：</strong><br>
                         为了解决这个问题，我们需要借助外部服务器（ProxyIP、SOCKS5 或 HTTP）作为「跳板」，通过这些第三方服务器来代理访问 Cloudflare
-                        的服务。<br><b>相当于找了一面（ProxyIP/SOCKS5/HTTP/HTTPS/TURN/SSTP）镜子，这样 Cloudflare 就能通过镜子看到了自己。</b><br><br>
+                        的服务。<br><b>相当于找了一面（ProxyIP/其他代理）镜子，这样 Cloudflare 就能通过镜子看到了自己。</b><br><br>
 
                         <strong>📍 实际效果：</strong>
                         <ul style="margin: 12px 0 0 20px; padding-left: 0;">
                             <li style="margin-bottom: 8px;">👤 访问<strong>非 Cloudflare CDN
                                     的网站</strong>时（如<b>油管、谷歌</b>等），你的 IP 由「优选 IP」决定</li>
                             <li>🌐 访问<strong>由 Cloudflare CDN 托管的网站</strong>时（如<b>推特、ChatGPT</b>等），你的 IP
-                                由「反代模式（PROXYIP/SOCKS5/HTTP/HTTPS/TURN/SSTP）」决定</li>
+                                由「反代模式（PROXYIP/其他代理）」决定</li>
                         </ul>
                     </div>
                 </div>
@@ -8773,7 +8773,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                             <div style="color: var(--primary-color); font-size: 1.5rem;">→</div>
                             <div
                                 style="background: #f3e5f5; padding: 12px; border-radius: 8px; text-align: center; flex: 1; min-width: 120px;">
-                                <div style="font-weight: 600; color: #7b1fa2;">PROXYIP/SOCKS5/HTTP/HTTPS/TURN/SSTP 服务器</div>
+                                <div style="font-weight: 600; color: #7b1fa2;">PROXYIP/其他代理 服务器</div>
                                 <div style="font-size: 0.9rem; color: var(--text-secondary);">第三方代理</div>
                             </div>
                             <div style="color: var(--primary-color); font-size: 1.5rem;">→</div>
@@ -8797,7 +8797,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                                 站点</strong>时（如<b>油管、谷歌</b>等），你的 IP 归属地由「优选 IP」决定</li>
                         <li style="color: var(--text-secondary);">🌐 访问<strong>由 Cloudflare CDN
                                 托管的网站</strong>时（如<b>推特、ChatGPT</b>等），你的 IP
-                            归属地由「ProxyIP/SOCKS5/HTTP/HTTPS/TURN/SSTP」决定</li>
+                            归属地由「ProxyIP/其他代理」决定</li>
                     </ul>
                 </div>
             </div>
