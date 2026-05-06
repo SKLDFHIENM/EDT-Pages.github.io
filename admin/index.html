@@ -8939,7 +8939,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             <div class="api-form-group chain-proxy-form">
                 <div class="api-form-row-item">
                     <label for="chainProxyNodeName">节点名称:</label>
-                    <input type="text" id="chainProxyNodeName" title="节点名称" placeholder="链式代理">
+                    <input type="text" id="chainProxyNodeName" title="节点名称" placeholder="自动生成">
                 </div>
 
                 <div class="api-form-row-item">
@@ -15112,6 +15112,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             if (!modal || !nodeNameInput || !hostInput || !portInput || !protocolSelect || !addressInput) return;
 
             nodeNameInput.value = '';
+            nodeNameInput.placeholder = '链式代理';
             hostInput.value = getDefaultChainProxyHost();
             hostInput.placeholder = getDefaultChainProxyHost() || '当前网页域名';
             portInput.value = '';
@@ -15126,6 +15127,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 delete addBtn.dataset.validProtocol;
                 delete addBtn.dataset.validAddress;
                 delete addBtn.dataset.validKey;
+                delete addBtn.dataset.defaultNodeName;
             }
 
             updateChainProxyVerifyState(false);
@@ -15139,12 +15141,17 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
 
         function resetChainProxyValidation() {
             const addBtn = document.getElementById('btnAddChainProxy');
+            const nodeNameInput = document.getElementById('chainProxyNodeName');
             const statusEl = document.getElementById('chainProxyStatus');
             if (addBtn) {
                 addBtn.disabled = true;
                 delete addBtn.dataset.validProtocol;
                 delete addBtn.dataset.validAddress;
                 delete addBtn.dataset.validKey;
+                delete addBtn.dataset.defaultNodeName;
+            }
+            if (nodeNameInput && !String(nodeNameInput.value || '').trim()) {
+                nodeNameInput.placeholder = '自动生成';
             }
             if (statusEl) {
                 statusEl.style.display = 'none';
@@ -15156,12 +15163,17 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
         function updateChainProxyVerifyState(resetValidation = true) {
             if (resetValidation) {
                 const addBtn = document.getElementById('btnAddChainProxy');
+                const nodeNameInput = document.getElementById('chainProxyNodeName');
                 const statusEl = document.getElementById('chainProxyStatus');
                 if (addBtn) {
                     addBtn.disabled = true;
                     delete addBtn.dataset.validProtocol;
                     delete addBtn.dataset.validAddress;
                     delete addBtn.dataset.validKey;
+                    delete addBtn.dataset.defaultNodeName;
+                }
+                if (nodeNameInput && !String(nodeNameInput.value || '').trim()) {
+                    nodeNameInput.placeholder = '自动生成';
                 }
                 if (statusEl) {
                     statusEl.style.display = 'none';
@@ -15270,6 +15282,25 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             return `${userInfo.slice(0, colonIndex)}:***@${target}`;
         }
 
+        function extractChainProxyCountryCode(loc) {
+            const value = String(loc || '').trim().toUpperCase();
+            if (!value || value === '未知') return '';
+
+            const bracketMatch = value.match(/\[([A-Z]{2})\]/);
+            if (bracketMatch) return bracketMatch[1];
+
+            const codeMatch = value.match(/\b[A-Z]{2}\b/);
+            if (codeMatch) return codeMatch[0];
+
+            return '';
+        }
+
+        function buildChainProxyDefaultNodeName(loc, protocol) {
+            const countryCode = extractChainProxyCountryCode(loc);
+            const protocolLabel = normalizeProxyProtocol(protocol || 'socks5').toUpperCase();
+            return `${countryCode ? `${countryCode} ` : ''}链式${protocolLabel}代理`;
+        }
+
         function renderChainProxyAvailabilitySuccessCard(options) {
             const {
                 ip,
@@ -15277,7 +15308,6 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 responseTimeDisplay,
                 preferredHost,
                 preferredPort,
-                nodeName,
                 protocol,
                 proxyAddress
             } = options || {};
@@ -15285,7 +15315,6 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             const safeLoc = escapeMarkdownHtml(loc || '未知');
             const safeResponseTime = escapeMarkdownHtml(responseTimeDisplay || '未知');
             const safePreferred = escapeMarkdownHtml(`${preferredHost || '未填写'}:${preferredPort || '443'}`);
-            const safeNodeName = escapeMarkdownHtml(nodeName || '链式代理');
             const safeProtocol = escapeMarkdownHtml(protocol || 'socks5');
             const safeProtocolLabel = escapeMarkdownHtml(`${protocol || 'socks5'}代理`);
             const safeProxyAddress = escapeMarkdownHtml(maskChainProxyAddressForDisplay(proxyAddress || ''));
@@ -15295,7 +15324,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                     <div class="chain-verify-head">
                         <div class="chain-verify-title">
                             <span class="chain-verify-dot"></span>
-                            <span>${safeNodeName} 验证通过</span>
+                            <span>验证通过</span>
                         </div>
                         <span class="chain-verify-badge">可添加</span>
                     </div>
@@ -15366,6 +15395,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 delete addBtn.dataset.validProtocol;
                 delete addBtn.dataset.validAddress;
                 delete addBtn.dataset.validKey;
+                delete addBtn.dataset.defaultNodeName;
             }
 
             try {
@@ -15405,13 +15435,15 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 const loc = data.loc || '未知';
                 const responseTime = data.responseTime || 0;
                 const responseTimeDisplay = responseTime > 0 ? `${responseTime}ms` : '未知';
+                const defaultNodeName = buildChainProxyDefaultNodeName(loc, protocol);
+                const nodeNameInput = document.getElementById('chainProxyNodeName');
+                if (nodeNameInput && !String(nodeNameInput.value || '').trim()) {
+                    nodeNameInput.placeholder = defaultNodeName;
+                }
                 const previewHost = normalizeChainProxyPreferredHost(
                     document.getElementById('chainProxyHost')?.value || getDefaultChainProxyHost()
                 );
                 const previewPort = String(document.getElementById('chainProxyPort')?.value || '').trim() || '443';
-                const previewNodeName = String(document.getElementById('chainProxyNodeName')?.value || '')
-                    .replace(/[\r\n]+/g, ' ')
-                    .trim() || '链式代理';
                 showChainProxyStatus(
                     renderChainProxyAvailabilitySuccessCard({
                         ip,
@@ -15419,7 +15451,6 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                         responseTimeDisplay,
                         preferredHost: previewHost,
                         preferredPort: previewPort,
-                        nodeName: previewNodeName,
                         protocol,
                         proxyAddress: processedAddress
                     }),
@@ -15432,6 +15463,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                     addBtn.dataset.validProtocol = protocol;
                     addBtn.dataset.validAddress = processedAddress;
                     addBtn.dataset.validKey = validationKey;
+                    addBtn.dataset.defaultNodeName = defaultNodeName;
                 }
             } catch (error) {
                 if (error.name === 'AbortError') {
@@ -15476,7 +15508,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
 
             const nodeName = String(document.getElementById('chainProxyNodeName')?.value || '')
                 .replace(/[\r\n]+/g, ' ')
-                .trim() || '链式代理';
+                .trim() || addBtn?.dataset.defaultNodeName || buildChainProxyDefaultNodeName('', validProtocol);
             const preferredHost = normalizeChainProxyPreferredHost(
                 document.getElementById('chainProxyHost')?.value || getDefaultChainProxyHost()
             );
