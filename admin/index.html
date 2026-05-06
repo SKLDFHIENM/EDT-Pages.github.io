@@ -15178,9 +15178,21 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             verifyBtn.disabled = !String(addressInput?.value || '').trim();
         }
 
+        function normalizeChainProxyNodeName(value) {
+            const cleanValue = String(value || '').replace(/[\r\n]+/g, ' ').trim();
+            if (!cleanValue) return '';
+
+            try {
+                return decodeURIComponent(cleanValue);
+            } catch (error) {
+                return cleanValue;
+            }
+        }
+
         function sanitizeChainProxyAddressInput() {
             const addressInput = document.getElementById('chainProxyAddress');
             const protocolSelect = document.getElementById('chainProxyProtocol');
+            const nodeNameInput = document.getElementById('chainProxyNodeName');
             if (!addressInput || !protocolSelect) return;
 
             let value = addressInput.value.trimStart();
@@ -15198,6 +15210,15 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                     value = value.slice(legacyPrefix.length).trimStart();
                     break;
                 }
+            }
+
+            const hashIndex = value.indexOf('#');
+            if (hashIndex >= 0) {
+                const nodeName = normalizeChainProxyNodeName(value.slice(hashIndex + 1));
+                if (nodeName && nodeNameInput) {
+                    nodeNameInput.value = nodeName;
+                }
+                value = value.slice(0, hashIndex).trimEnd();
             }
 
             if (addressInput.value !== value) {
