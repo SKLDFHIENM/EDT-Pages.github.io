@@ -8939,7 +8939,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             <div class="api-form-group chain-proxy-form">
                 <div class="api-form-row-item">
                     <label for="chainProxyNodeName">节点名称:</label>
-                    <input type="text" id="chainProxyNodeName" title="节点名称" placeholder="自动生成">
+                    <input type="text" id="chainProxyNodeName" title="节点名称" placeholder="链式代理">
                 </div>
 
                 <div class="api-form-row-item">
@@ -15151,7 +15151,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 delete addBtn.dataset.defaultNodeName;
             }
             if (nodeNameInput && !String(nodeNameInput.value || '').trim()) {
-                nodeNameInput.placeholder = '自动生成';
+                nodeNameInput.placeholder = '链式代理';
             }
             if (statusEl) {
                 statusEl.style.display = 'none';
@@ -15173,7 +15173,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                     delete addBtn.dataset.defaultNodeName;
                 }
                 if (nodeNameInput && !String(nodeNameInput.value || '').trim()) {
-                    nodeNameInput.placeholder = '自动生成';
+                    nodeNameInput.placeholder = '链式代理';
                 }
                 if (statusEl) {
                     statusEl.style.display = 'none';
