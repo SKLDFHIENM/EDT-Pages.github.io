@@ -8932,9 +8932,8 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
     </div>
 
     <!-- 链式代理模态框 -->
-    <div class="modal-overlay" id="chainProxyModal" onclick="closeChainProxyModal(event)">
-        <div class="modal api-optimize-modal chain-proxy-modal" onclick="event.stopPropagation()">
-            <button type="button" class="modal-close" onclick="closeChainProxyModal()">×</button>
+    <div class="modal-overlay" id="chainProxyModal">
+        <div class="modal api-optimize-modal chain-proxy-modal">
             <h2 class="api-optimize-modal-title">🔗 添加链式代理节点</h2>
 
             <div class="api-form-group chain-proxy-form">
@@ -15134,8 +15133,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             setTimeout(() => addressInput.focus(), 0);
         }
 
-        function closeChainProxyModal(event) {
-            if (event && event.target && event.target.id !== 'chainProxyModal') return;
+        function closeChainProxyModal() {
             document.getElementById('chainProxyModal')?.classList.remove('show');
         }
 
