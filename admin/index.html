@@ -3896,13 +3896,18 @@
         }
 
         .chain-verify-badge {
-            flex-shrink: 0;
+            flex-shrink: 1;
+            max-width: 60%;
+            min-width: 0;
+            overflow: hidden;
             padding: 4px 8px;
             border-radius: 999px;
             background: rgba(16, 185, 129, 0.13);
             color: #047857;
             font-size: 12px;
             font-weight: 700;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .chain-verify-body {
@@ -3957,35 +3962,6 @@
             cursor: pointer;
             text-decoration: underline;
             text-underline-offset: 3px;
-        }
-
-        .chain-verify-meta {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-        }
-
-        .chain-meta-item {
-            min-width: 0;
-            padding: 9px 10px;
-            border-radius: 8px;
-            background: rgba(16, 185, 129, 0.09);
-        }
-
-        .chain-meta-label {
-            margin-bottom: 4px;
-            color: #047857;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
-        .chain-meta-value {
-            overflow: hidden;
-            color: #064e3b;
-            font-size: 13px;
-            font-weight: 700;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
         .btn-chain-add {
@@ -4053,9 +4029,6 @@
                 transform: rotate(90deg);
             }
 
-            .chain-verify-meta {
-                grid-template-columns: 1fr;
-            }
         }
 
         .api-results-container {
@@ -4602,18 +4575,13 @@
         }
 
         html.dark-mode .chain-verify-title,
-        html.dark-mode .chain-route-value,
-        html.dark-mode .chain-meta-value {
+        html.dark-mode .chain-route-value {
             color: var(--text-primary);
         }
 
         html.dark-mode .chain-route-node {
             border-color: rgba(52, 211, 153, 0.18);
             background: rgba(15, 23, 42, 0.52);
-        }
-
-        html.dark-mode .chain-meta-item {
-            background: rgba(52, 211, 153, 0.12);
         }
 
         html.dark-mode .btn-chain-add:not([disabled]) {
@@ -15314,6 +15282,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             const safeIp = escapeMarkdownHtml(ip || '未知');
             const safeLoc = escapeMarkdownHtml(loc || '未知');
             const safeResponseTime = escapeMarkdownHtml(responseTimeDisplay || '未知');
+            const safeBadgeRegion = escapeMarkdownHtml(extractChainProxyCountryCode(loc) || loc || '未知');
             const safePreferred = escapeMarkdownHtml(`${preferredHost || '未填写'}:${preferredPort || '443'}`);
             const safeProtocol = escapeMarkdownHtml(protocol || 'socks5');
             const safeProtocolLabel = escapeMarkdownHtml(`${protocol || 'socks5'}代理`);
@@ -15326,7 +15295,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                             <span class="chain-verify-dot"></span>
                             <span>验证通过</span>
                         </div>
-                        <span class="chain-verify-badge">可添加</span>
+                        <span class="chain-verify-badge" title="地区: ${safeLoc} ${safeResponseTime}">地区: ${safeBadgeRegion} ${safeResponseTime}</span>
                     </div>
 
                     <div class="chain-verify-body">
@@ -15346,17 +15315,6 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                                 <div class="chain-route-value chain-ip-link" data-raw-value="${safeIp}" onclick="showIpDetailForProxy(this.dataset.rawValue, this)" title="${safeIp}">
                                     ${safeIp} 🔍
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="chain-verify-meta">
-                            <div class="chain-meta-item">
-                                <div class="chain-meta-label">区域</div>
-                                <div class="chain-meta-value" title="${safeLoc}">${safeLoc}</div>
-                            </div>
-                            <div class="chain-meta-item">
-                                <div class="chain-meta-label">响应延迟</div>
-                                <div class="chain-meta-value">${safeResponseTime}</div>
                             </div>
                         </div>
                     </div>
