@@ -8915,8 +8915,8 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                     <div class="chain-proxy-preferred-wrapper">
                         <input type="text" id="chainProxyHost" title="优选域名/IP" placeholder="当前网页域名">
                         <span class="proxy-protocol-separator">:</span>
-                        <input type="text" id="chainProxyPort" title="优选端口 1~65535" inputmode="numeric"
-                            placeholder="443" oninput="normalizeChainProxyPortInput()">
+                        <input type="text" id="chainProxyPort" title="优选端口 1~65535，可留空" inputmode="numeric"
+                            placeholder="可选" oninput="normalizeChainProxyPortInput()">
                     </div>
                 </div>
 
@@ -15269,6 +15269,12 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             return `${countryCode ? `${countryCode} ` : ''}链式${protocolLabel}代理`;
         }
 
+        function buildChainProxyPreferredEndpoint(host, port) {
+            const cleanHost = String(host || '').trim() || '未填写';
+            const cleanPort = String(port || '').trim();
+            return cleanPort ? `${cleanHost}:${cleanPort}` : cleanHost;
+        }
+
         function renderChainProxyAvailabilitySuccessCard(options) {
             const {
                 ip,
@@ -15283,7 +15289,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             const safeLoc = escapeMarkdownHtml(loc || '未知');
             const safeResponseTime = escapeMarkdownHtml(responseTimeDisplay || '未知');
             const safeBadgeRegion = escapeMarkdownHtml(extractChainProxyCountryCode(loc) || loc || '未知');
-            const safePreferred = escapeMarkdownHtml(`${preferredHost || '未填写'}:${preferredPort || '443'}`);
+            const safePreferred = escapeMarkdownHtml(buildChainProxyPreferredEndpoint(preferredHost, preferredPort));
             const safeProtocol = escapeMarkdownHtml(protocol || 'socks5');
             const safeProtocolLabel = escapeMarkdownHtml(`${protocol || 'socks5'}代理`);
             const safeProxyAddress = escapeMarkdownHtml(maskChainProxyAddressForDisplay(proxyAddress || ''));
@@ -15401,7 +15407,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
                 const previewHost = normalizeChainProxyPreferredHost(
                     document.getElementById('chainProxyHost')?.value || getDefaultChainProxyHost()
                 );
-                const previewPort = String(document.getElementById('chainProxyPort')?.value || '').trim() || '443';
+                const previewPort = String(document.getElementById('chainProxyPort')?.value || '').trim();
                 showChainProxyStatus(
                     renderChainProxyAvailabilitySuccessCard({
                         ip,
@@ -15470,20 +15476,21 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
             const preferredHost = normalizeChainProxyPreferredHost(
                 document.getElementById('chainProxyHost')?.value || getDefaultChainProxyHost()
             );
-            const portValue = String(document.getElementById('chainProxyPort')?.value || '').trim() || '443';
-            const portNumber = Number(portValue);
+            const portValue = String(document.getElementById('chainProxyPort')?.value || '').trim();
+            const portNumber = portValue ? Number(portValue) : null;
 
             if (!preferredHost) {
                 showChainProxyStatus('❌ 优选域名/IP不能为空', 'error');
                 return;
             }
-            if (!Number.isInteger(portNumber) || portNumber < 1 || portNumber > 65535) {
+            if (portValue && (!Number.isInteger(portNumber) || portNumber < 1 || portNumber > 65535)) {
                 showChainProxyStatus('❌ 优选端口只能填写 1~65535 的数字', 'error');
                 return;
             }
 
             const chainProxyURL = `${validProtocol}://${validAddress}`;
-            const line = `${preferredHost}:${portNumber}#${nodeName}$${chainProxyURL}`;
+            const preferredEndpoint = buildChainProxyPreferredEndpoint(preferredHost, portNumber);
+            const line = `${preferredEndpoint}#${nodeName}$${chainProxyURL}`;
             const customIPsTextarea = document.getElementById('customIPs');
             if (!customIPsTextarea) return;
 
