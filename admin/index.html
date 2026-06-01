@@ -10260,6 +10260,7 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
         const HTTPS_PROXY_MIN_VERSION = 20260413174651;
         const TURN_SSTP_PROXY_MIN_VERSION = 20260504172138;
         const CHAIN_PROXY_MIN_VERSION = 20260506175102;
+        const SKIP_VERIFY_WARNING_BYPASS_MIN_VERSION = 20260601154939;
         let cachedWorkerVersionRawText = '';
         let cachedLatestOnlineVersion = 0;
         let cachedCurrentVersionNumber = 0;
@@ -13238,6 +13239,11 @@ vless://7b102311-43fd-4e8f-977e-8090623c101d@edt-pages.github.io:443?security=tl
 
         function handleSkipVerifyChange(event) {
             if (event.target.checked) {
+                if (cachedCurrentVersionNumber >= SKIP_VERIFY_WARNING_BYPASS_MIN_VERSION) {
+                    markModified('config');
+                    return;
+                }
+
                 // 显示警告弹窗
                 event.target.checked = false; // 先取消勾选
                 document.getElementById('skipVerifyWarningModal').classList.add('show');
